@@ -27,18 +27,16 @@ services:
         value: "True"
 
   # React Vite Frontend Static Site
-  - type: static_site
+  - type: web
     name: stockflow-frontend
+    runtime: static
     rootDir: frontend
     buildCommand: npm install && npm run build
-    publishDir: dist
+    staticPublishPath: dist
     routes:
       - type: rewrite
         source: /*
         destination: /index.html
     envVars:
       - key: VITE_API_BASE_URL
-        fromService:
-          type: web
-          name: stockflow-backend
-          envVarKey: RENDER_EXTERNAL_URL
+        value: https://stockflow-backend.onrender.com
