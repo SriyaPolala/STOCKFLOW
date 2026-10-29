@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: stockflow_postgres
+    restart: always
+    environment:
+      POSTGRES_DB: stockflow_db
+      POSTGRES_USER: stockflow_user
+      POSTGRES_PASSWORD: stockflow_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: stockflow_backend
+    restart: always
+    depends_on:
+      - db
+    environment:
+      DJANGO_SECRET_KEY: dev-insecure-secret-key-change-in-production
+      DEBUG: "True"
+      ALLOWED_HOSTS: "localhost,127.0.0.1,backend"
+      DATABASE_URL: postgres://stockflow_user:stockflow_password@db:5432/stockflow_db
+      CORS_ALLOW_ALL_ORIGINS: "True"
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: stockflow_frontend
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+
+volumes:
+  postgres_data:
